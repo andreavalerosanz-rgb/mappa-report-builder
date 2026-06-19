@@ -81,7 +81,7 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:3001/api/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -100,7 +100,7 @@ function App() {
     
     setIsAiLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/copilot', {
+      const response = await fetch('/api/copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

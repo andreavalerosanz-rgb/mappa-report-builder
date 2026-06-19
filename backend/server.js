@@ -92,7 +92,12 @@ Responde SOLO con el JSON, sin texto adicional. Formato esperado:
     }, 1500);
   }
 });
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🚀 API corriendo en el puerto ${PORT}`);
-});
+// Mantén tu app.listen para desarrollo local, pero exporta 'app' para Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3001, () => {
+    console.log('Servidor corriendo en el puerto 3001');
+  });
+}
+
+// Vercel necesita esto para funcionar:
+module.exports = app;
