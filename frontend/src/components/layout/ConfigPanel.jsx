@@ -1,167 +1,315 @@
 import { useState } from 'react';
 
-export const ConfiguratorPanel = ({ config, onConfigChange, onFileUpload, onLogoUpload, loading, recordCount, onReset, onAiSubmit, isAiLoading }) => {
-  // Estado local para el texto del usuario
+// ─── Brand gradient as a reusable CSS value ───────────────────────────────────
+const MAPPA_GRADIENT = 'linear-gradient(90deg, #fdc2d8 0%, #fca65e 33%, #ff7983 66%, #041282 100%)';
+
+// Thin gradient rule used as a divider / accent bar
+const GradientRule = ({ className = '' }) => (
+  <div
+    className={`h-px w-full ${className}`}
+    style={{ background: MAPPA_GRADIENT }}
+  />
+);
+
+// Section heading — small caps, black, understated
+const SectionHeading = ({ number, label }) => (
+  <div className="flex items-center gap-3 mb-4">
+    <span className="text-[10px] font-bold text-black/25 tabular-nums">{number}</span>
+    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/40">{label}</span>
+    <div className="flex-1 h-px bg-black/8" />
+  </div>
+);
+
+// Shared input style
+const inputClass =
+  'w-full bg-transparent border border-black/12 rounded px-3 py-2 text-sm text-black placeholder-black/25 outline-none focus:border-black/40 transition-colors';
+
+export const ConfiguratorPanel = ({
+  config,
+  onConfigChange,
+  onFileUpload,
+  onLogoUpload,
+  loading,
+  recordCount,
+  onReset,
+  onAiSubmit,
+  isAiLoading,
+}) => {
   const [aiPrompt, setAiPrompt] = useState('');
 
   const handleAiSubmit = (e) => {
     e.preventDefault();
     onAiSubmit(aiPrompt);
-    setAiPrompt(''); // Limpiamos el input después de enviar
+    setAiPrompt('');
   };
 
-  return (
-    <div className="w-1/3 h-full bg-white border-r border-slate-200 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20">
+  const templates = [
+    { value: 'standard', label: 'Estándar' },
+    { value: 'minimal', label: 'Minimal' },
+    { value: 'modern', label: 'Modern' },
+  ];
 
-      {/* Cabecera del Panel */}
-      <div className="p-6 border-b border-slate-100">
-        <h1 className="text-xl font-extrabold tracking-tight text-slate-900">Mappa Report Builder</h1>
-        <p className="text-sm text-slate-500 mt-1 font-medium">Configuración de exportación</p>
+  return (
+    <aside className="w-[300px] min-w-[300px] h-full bg-white border-r border-black/10 flex flex-col overflow-hidden">
+
+      {/* ── Logo / Wordmark ────────────────────────────────────────────── */}
+      <div className="px-7 pt-6 pb-5">
+        <div className="flex items-baseline gap-1.5">
+          {/* Gradient wordmark */}
+          <span
+            className="text-xl font-black tracking-tight leading-none"
+            style={{
+              background: MAPPA_GRADIENT,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            MAPPA
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-black/30 leading-none mb-0.5">
+            Report Builder
+          </span>
+        </div>
       </div>
 
-      {/* Contenido scrolleable */}
-      <div className="p-6 flex-1 overflow-y-auto space-y-8">
+      <GradientRule />
 
-        {/* SECCIÓN 1: Datos */}
+      {/* ── Scrollable body ───────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto px-7 py-6 space-y-8">
+
+        {/* 1 · DATA SOURCE */}
         <section>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. Fuente de Datos</h3>
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 transition-colors hover:border-blue-300">
-            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 rounded-md cursor-pointer hover:bg-slate-100 transition-colors">
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg className="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                <p className="text-xs text-slate-500 font-medium"><span className="text-blue-600 font-semibold">Sube un CSV</span> o arrástralo</p>
-              </div>
-              <input type="file" accept=".csv" className="hidden" onChange={onFileUpload} />
-            </label>
+          <SectionHeading number="01" label="Fuente de datos" />
 
-            {loading && <p className="text-xs text-blue-600 animate-pulse mt-3 text-center font-medium">Procesando datos...</p>}
-            {recordCount > 0 && !loading && (
-              <div className="mt-3 bg-green-100 text-green-700 text-xs px-3 py-2 rounded border border-green-200 font-semibold text-center">
-                ✓ {recordCount} registros sincronizados
-              </div>
-            )}
-          </div>
+          <label className="block cursor-pointer group">
+            <div className="border border-dashed border-black/20 rounded p-4 text-center transition-colors group-hover:border-black/50 group-hover:bg-black/[0.02]">
+              <svg
+                className="w-5 h-5 mx-auto mb-2 text-black/25 group-hover:text-black/50 transition-colors"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <p className="text-xs text-black/40">
+                <span className="font-bold text-black/70">Sube un CSV</span> o arrástralo aquí
+              </p>
+            </div>
+            <input type="file" accept=".csv" className="hidden" onChange={onFileUpload} />
+          </label>
+
+          {loading && (
+            <p className="mt-3 text-xs text-black/40 text-center">Procesando…</p>
+          )}
+
+          {recordCount > 0 && !loading && (
+            <div className="mt-3 flex items-center gap-2">
+              {/* Tiny gradient pill indicator */}
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ff7983' }} />
+              <span className="text-xs font-bold text-black/60">
+                {recordCount} registros cargados
+              </span>
+            </div>
+          )}
         </section>
 
-        {/* SECCIÓN 2: Identidad */}
+        {/* 2 · IDENTITY */}
         <section>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. Identidad Visual</h3>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Título del Reporte</label>
+          <SectionHeading number="02" label="Identidad" />
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-black/30 mb-1.5">
+                Título
+              </label>
               <input
-                type="text" name="title" value={config.title} onChange={onConfigChange}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                type="text"
+                name="title"
+                value={config.title}
+                onChange={onConfigChange}
+                className={inputClass}
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Cliente / Organización</label>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-black/30 mb-1.5">
+                Empresa
+              </label>
               <input
-                type="text" name="company" value={config.company} onChange={onConfigChange}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                type="text"
+                name="company"
+                value={config.company}
+                onChange={onConfigChange}
+                className={inputClass}
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 border border-slate-200 rounded-md bg-slate-50">
-              <label className="text-sm font-semibold text-slate-700">Color Principal</label>
-              <input
-                type="color" name="primaryColor" value={config.primaryColor} onChange={onConfigChange}
-                className="h-8 w-12 cursor-pointer rounded border-0 bg-transparent"
-              />
+            {/* Color — strip + picker */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-black/30 mb-1.5">
+                Color principal
+              </label>
+              <div className="flex items-center gap-2 border border-black/12 rounded px-3 py-2">
+                <input
+                  type="color"
+                  name="primaryColor"
+                  value={config.primaryColor}
+                  onChange={onConfigChange}
+                  className="h-5 w-5 rounded cursor-pointer border-0 bg-transparent p-0"
+                />
+                <span className="text-xs font-mono text-black/50">{config.primaryColor}</span>
+
+                {/* Brand color quick-picks */}
+                <div className="ml-auto flex gap-1.5">
+                  {['#041282', '#ff7983', '#fca65e', '#fdc2d8'].map(hex => (
+                    <button
+                      key={hex}
+                      title={hex}
+                      onClick={() => onConfigChange({ target: { name: 'primaryColor', value: hex, type: 'text' } })}
+                      className="w-4 h-4 rounded-full border border-black/10 transition-transform hover:scale-110"
+                      style={{ background: hex }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1.5 pt-2 border-t border-slate-100 mt-2">
-              <label className="text-sm font-semibold text-slate-700">Logo Corporativo</label>
+            {/* Logo upload */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-black/30 mb-1.5">
+                Logo corporativo
+              </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={onLogoUpload}
-                className="w-full text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+                className="w-full text-xs text-black/40
+                  file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0
+                  file:text-[11px] file:font-bold file:uppercase file:tracking-wider
+                  file:bg-black file:text-white hover:file:bg-[#041282]
+                  file:cursor-pointer cursor-pointer file:transition-colors"
               />
               {config.logo && (
-                <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-md">
-                  <img src={config.logo} alt="Logo preview" className="h-8 object-contain" />
+                <div className="mt-2 p-2 border border-black/10 rounded">
+                  <img src={config.logo} alt="Logo" className="h-8 object-contain" />
                 </div>
               )}
             </div>
           </div>
         </section>
 
-        {/* SECCIÓN 3: Estructura */}
+        {/* 3 · LAYOUT */}
         <section>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">3. Layout</h3>
+          <SectionHeading number="03" label="Layout" />
+
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Plantilla Visual</label>
-              <select
-                name="template"
-                value={config.template}
-                onChange={onConfigChange}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
-              >
-                <option value="standard">Standard (Corporativa)</option>
-                <option value="minimal">Minimal (Limpia)</option>
-                <option value="modern">Modern (Bloques de color)</option>
-              </select>
+            {/* Template selector */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-black/30 mb-2">
+                Plantilla
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {templates.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => onConfigChange({ target: { name: 'template', value, type: 'text' } })}
+                    className={`py-2 px-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all border
+                      ${config.template === value
+                        ? 'bg-black text-white border-black'
+                        : 'bg-transparent text-black/40 border-black/12 hover:border-black/30 hover:text-black/70'
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="pt-2 space-y-3">
-              <label className="flex items-center space-x-3 cursor-pointer group">
-                <input
-                  type="checkbox" name="showSummary" checked={config.showSummary} onChange={onConfigChange}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Mostrar cabeceras de sección</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer group">
-                <input
-                  type="checkbox" name="showDetailedTable" checked={config.showDetailedTable} onChange={onConfigChange}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Incluir tabla de datos crudos</span>
-              </label>
+            {/* Toggles */}
+            <div className="space-y-0 divide-y divide-black/6">
+              {[
+                { name: 'showSummary', label: 'Cabeceras de sección' },
+                { name: 'showDetailedTable', label: 'Tabla de datos' },
+              ].map(({ name, label }) => (
+                <label key={name} className="flex items-center justify-between py-3 cursor-pointer group">
+                  <span className="text-xs text-black/50 group-hover:text-black/80 transition-colors">{label}</span>
+                  <div
+                    className={`relative w-8 h-4 rounded-full transition-colors duration-200 ${
+                      config[name] ? 'bg-black' : 'bg-black/15'
+                    }`}
+                  >
+                    <div
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                        config[name] ? 'translate-x-4' : 'translate-x-0.5'
+                      }`}
+                    />
+                    <input
+                      type="checkbox"
+                      name={name}
+                      checked={config[name]}
+                      onChange={onConfigChange}
+                      className="sr-only"
+                    />
+                  </div>
+                </label>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* SECCIÓN 4: AI COPILOT */}
-        <section className="mt-8 pt-6 border-t border-slate-100">
-          <h3 className="text-xs font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent uppercase tracking-wider mb-3 flex items-center gap-2">
-            ✨ AI Copilot
-          </h3>
-          <form onSubmit={handleAiSubmit} className="space-y-3 relative">
-            <textarea 
+        {/* 4 · AI COPILOT */}
+        <section>
+          <GradientRule className="mb-6" />
+
+          {/* Gradient accent label */}
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className="text-[10px] font-black uppercase tracking-[0.14em]"
+              style={{
+                background: MAPPA_GRADIENT,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              ✦ AI Copilot
+            </span>
+          </div>
+
+          <form onSubmit={handleAiSubmit} className="space-y-2">
+            <textarea
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Ej: Haz el diseño minimalista, ponlo en tonos verdes y añade un resumen de los datos."
+              placeholder="Ej: Diseño minimalista, tonos navy, añade un resumen ejecutivo de los datos."
               disabled={recordCount === 0 || isAiLoading}
-              className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none min-h-[80px] disabled:opacity-50"
+              rows={3}
+              className="w-full bg-transparent border border-black/12 rounded px-3 py-2.5 text-xs text-black
+                placeholder-black/25 outline-none focus:border-black/40 transition-colors resize-none
+                disabled:opacity-40 disabled:cursor-not-allowed"
             />
-            <button 
+            <button
               type="submit"
               disabled={!aiPrompt.trim() || recordCount === 0 || isAiLoading}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold py-2.5 rounded-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 rounded text-[11px] font-black uppercase tracking-widest text-white
+                transition-all active:scale-[0.98] disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ background: isAiLoading ? '#999' : MAPPA_GRADIENT }}
             >
-              {isAiLoading ? (
-                <span className="animate-pulse">Pensando...</span>
-              ) : (
-                'Generar con IA'
-              )}
+              {isAiLoading ? 'Procesando…' : 'Generar con IA'}
             </button>
           </form>
         </section>
 
-        {/* BOTÓN DE RESET */}
-        <section className="pt-4">
+        {/* Reset */}
+        <section className="pb-4">
           <button
             onClick={onReset}
-            className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-2.5 rounded-md transition-all active:scale-95 border border-red-200 text-sm"
+            className="w-full py-2 text-[11px] font-bold uppercase tracking-widest text-black/25
+              border border-black/10 rounded hover:border-black/30 hover:text-black/50 transition-colors"
           >
-            Reiniciar Configuración
+            Reiniciar configuración
           </button>
         </section>
       </div>
-    </div>
+    </aside>
   );
 };

@@ -8,13 +8,17 @@ const { Readable } = require('stream');
 
 const app = express();
 
-// Middleware esencial
 app.use(cors());
-app.use(express.json());
+
+// Increase the JSON body limit to 10mb to handle larger payloads.
+// The default (100kb) is too small once CSV data gets non-trivial.
+// Note: config.logo (base64 image) is stripped client-side before sending,
+// but we still bump this limit as a safety net.
+app.use(express.json({ limit: '10mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Endpoint 1: Procesar CSV (Acepta /api/upload o /upload)
+// ── Endpoint 1: CSV upload ────────────────────────────────────────────────────
 app.post(['/api/upload', '/upload'], upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No se subió ningún archivo' });
 
@@ -28,36 +32,69 @@ app.post(['/api/upload', '/upload'], upload.single('file'), (req, res) => {
     .on('error', (error) => res.status(500).json({ error: error.message }));
 });
 
-// Endpoint 2: IA Copilot (Acepta /api/copilot o /copilot)
+// ── Endpoint 2: AI Copilot ────────────────────────────────────────────────────
 app.post(['/api/copilot', '/copilot'], async (req, res) => {
   const { prompt, config, data } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Falta el prompt' });
 
-  try {
+  // Build a compact data summary instead of sending all rows verbatim.
+  // This keeps the Ollama prompt small and avoids any secondary size issues.
+  const headers = data?.length ? Object.keys(data[0]) : [];
+  const sampleRows = (data || []).slice(0, 5); // first 5 rows as context
+  const dataContext = JSON.stringify({ headers, sampleRows });
+
+  // Strip logo from config — it's a base64 string and irrelevant for the AI
+  const { logo: _logo, ...configWithoutLogo } = config || {};
+
+  const systemPrompt = `You are a report design assistant. Return ONLY a valid JSON object, no markdown, no explanation.
+Allowed keys:
+  - "primaryColor" (hex string, e.g. "#ff7983")
+  - "template" ("standard" | "minimal" | "modern")
+  - "title" (string)
+  - "company" (string)
+  - "aiSummary" (string — a 1-2 sentence executive summary based on the data)
+Only include keys the user's instruction actually warrants changing.
+
+Current config: ${JSON.stringify(configWithoutLogo)}
+Data context: ${dataContext}
+User instruction: "${prompt}"`;
+
+try {
     const aiResponse = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama3',
-        prompt: `Analiza esto y devuelve un JSON válido con primaryColor, template o aiSummary.\nPrompt: "${prompt}"`,
-        stream: false
-      })
+        prompt: systemPrompt,
+        stream: false,
+        format: 'json', // <--- ESTO ES LA MAGIA. Obliga a Llama3 a devolver JSON puro
+      }),
     });
+
+    if (!aiResponse.ok) throw new Error(`Ollama HTTP ${aiResponse.status}`);
+
     const aiData = await aiResponse.json();
-    const jsonString = aiData.response.replace(/```json/g, '').replace(/```/g, '').trim();
-    res.json(JSON.parse(jsonString));
+    const raw = aiData.response || '';
+    
+    // Como le hemos forzado el formato, el parseo debería ser directo
+    const parsed = JSON.parse(raw);
+    return res.json(parsed);
+
   } catch (error) {
-    console.warn("⚠️ Usando fallback de IA.");
-    setTimeout(() => res.json({ aiSummary: "Datos procesados y optimizados para el reporte de sostenibilidad de la planta." }), 1000);
+    // ESTO TE DIRÁ EXACTAMENTE QUÉ FALLA EN TU TERMINAL
+    console.error('⚠️ Error crítico con Ollama:', error.message);
+    
+    return res.json({
+      aiSummary: 'Datos procesados y optimizados para el reporte de sostenibilidad.',
+    });
   }
 });
 
-// Arranque local (Vercel ignora esto)
+// ── Local dev server (Vercel ignores this block) ──────────────────────────────
 if (process.env.NODE_ENV !== 'production') {
   app.listen(3001, () => {
     console.log('✅ API local corriendo en http://localhost:3001');
   });
 }
 
-// Exportación para Vercel
 module.exports = app;
