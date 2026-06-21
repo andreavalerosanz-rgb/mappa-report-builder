@@ -1,223 +1,105 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
-// ─── Brand palette ────────────────────────────────────────────────────────────
-// The gradient itself can't be reproduced in react-pdf (no CSS gradient support),
-// so we use the endpoint colors strategically:
-// · Navy (#041282) as the primary solid for headers / accents in Standard + Minimal
-// · The gradient bar is approximated with a sequence of colored View strips in the PDF component
-const NAVY = '#041282';
-const CORAL = '#ff7983';
-const ORANGE = '#fca65e';
-const PINK = '#fdc2d8';
+export const NAVY = '#041282';
+export const CORAL = '#ff7983';
+export const ORANGE = '#fca65e';
+export const PINK = '#fdc2d8';
 
-// ─── Base styles (shared across templates) ────────────────────────────────────
 const base = {
-  page: {
-    fontFamily: 'Helvetica',
-    backgroundColor: '#ffffff',
-    color: '#000000',
-  },
-  headerBlock: {
-    marginBottom: 32,
-  },
-  gradientBar: {
-    // Approximated as a single-color rule; the PDF component renders the real multi-strip version
-    height: 2,
-    backgroundColor: NAVY,
-    marginBottom: 0,
-  },
-  logo: {
-    height: 36,
-    marginBottom: 14,
-    objectFit: 'contain',
-  },
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: -0.5,
-    lineHeight: 1.1,
-    marginBottom: 4,
-  },
-  meta: {
-    fontSize: 8,
-    color: '#999999',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-  },
-  aiSummaryBlock: {
-    marginBottom: 28,
-    padding: 14,
-    backgroundColor: '#f8f8f8',
-  },
-  aiSummaryEyebrow: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: '#aaaaaa',
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: 5,
-  },
-  aiSummaryText: {
-    fontSize: 9,
-    lineHeight: 1.65,
-    color: '#333333',
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  cellKey: {
-    fontSize: 7.5,
-    color: '#aaaaaa',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    flex: 1,
-  },
-  cellVal: {
-    fontSize: 8.5,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111111',
-    textAlign: 'right',
-    flex: 1,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 28,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    fontSize: 7,
-    color: '#cccccc',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    borderTopWidth: 1,
-    borderTopColor: '#eeeeee',
-    paddingTop: 10,
-  },
+  page: { fontFamily: 'Helvetica', backgroundColor: '#ffffff', color: '#000000' },
+  // Compartido para la tipografía de las cabeceras de tabla
+  cellKey: { fontSize: 8, color: '#888888', textTransform: 'uppercase', letterSpacing: 1, flex: 1 },
+  cellVal: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#111111', textAlign: 'right', flex: 1 },
 };
 
 // ─── STANDARD ─────────────────────────────────────────────────────────────────
-const buildStandard = (primaryColor) =>
-  StyleSheet.create({
-    page: { ...base.page, padding: 56 },
-    headerBlock: { ...base.headerBlock },
-    gradientBar: { ...base.gradientBar, backgroundColor: primaryColor },
-    logo: base.logo,
-    title: { ...base.title, fontSize: 26, color: '#000000' },
-    meta: { ...base.meta },
-    aiSummaryBlock: { ...base.aiSummaryBlock, borderLeftWidth: 3, borderLeftColor: primaryColor },
-    aiSummaryEyebrow: base.aiSummaryEyebrow,
-    aiSummaryText: base.aiSummaryText,
-    section: { ...base.section, backgroundColor: '#fafafa', borderRadius: 3, padding: 14 },
-    sectionDot: {
-      width: 5,
-      height: 5,
-      borderRadius: 3,
-      backgroundColor: primaryColor,
-      marginRight: 8,
-      marginTop: 2,
-    },
-    sectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-    sectionTitle: { ...base.sectionTitle, color: primaryColor, marginBottom: 0 },
-    row: base.row,
-    cellKey: base.cellKey,
-    cellVal: base.cellVal,
-    footer: base.footer,
-  });
+const buildStandard = (primaryColor) => StyleSheet.create({
+  page: base.page,
+  coverPage: { padding: 64, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
+  contentPage: { padding: '64px 72px 80px 72px' }, // extra bottom padding for footer
+  
+  logo: { height: 50, objectFit: 'contain', marginBottom: 40 },
+  eyebrow: { fontSize: 11, fontFamily: 'Helvetica-Bold', letterSpacing: 2, textTransform: 'uppercase', color: '#999999', marginBottom: 20 },
+  coverTitle: { fontSize: 40, fontFamily: 'Helvetica-Bold', letterSpacing: -0.7, lineHeight: 1.1, color: '#000000', marginBottom: 32, textAlign: 'center' },
+  coverCompany: { fontSize: 14, fontFamily: 'Helvetica-Bold', letterSpacing: 1.5, textTransform: 'uppercase', color: primaryColor, marginTop: 32 },
+  coverDate: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#aaaaaa', marginTop: 'auto' },
+
+  sectionTitle: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: primaryColor, borderBottomWidth: 2, borderBottomColor: primaryColor, paddingBottom: 8, marginBottom: 16 },
+  paragraph: { fontSize: 10, lineHeight: 1.6, color: '#444444', marginBottom: 12, textAlign: 'justify' },
+
+  dataBlock: { backgroundColor: '#fafafa', borderRadius: 4, padding: '16px 20px', borderLeftWidth: 3, borderLeftColor: primaryColor, marginBottom: 20 },
+  dataEntityTitle: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#111111', marginBottom: 12 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  cellKey: base.cellKey,
+  cellVal: base.cellVal,
+
+  aiBox: { backgroundColor: '#f8f8f8', padding: '16px 20px', borderLeftWidth: 3, borderLeftColor: primaryColor, marginBottom: 20 },
+  aiText: { fontSize: 10, lineHeight: 1.6, color: '#333333' },
+
+  footer: { position: 'absolute', bottom: 40, left: 72, right: 72, textAlign: 'center' },
+  footerText: { fontSize: 8, color: '#cccccc', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 },
+});
 
 // ─── MINIMAL ──────────────────────────────────────────────────────────────────
-const buildMinimal = () =>
-  StyleSheet.create({
-    page: { ...base.page, padding: '56px 72px' },
-    headerBlock: { ...base.headerBlock, marginBottom: 40 },
-    gradientBar: { display: 'none' },          
-    logo: { ...base.logo, marginBottom: 18 },
-    title: { ...base.title, fontSize: 22, color: '#000000' },
-    meta: { ...base.meta },
-    aiSummaryBlock: {
-      ...base.aiSummaryBlock,
-      backgroundColor: 'transparent',
-      padding: 0,
-      marginBottom: 32,
-      borderBottomWidth: 1,
-      borderBottomColor: '#eeeeee',
-      paddingBottom: 20,
-    },
-    aiSummaryEyebrow: base.aiSummaryEyebrow,
-    aiSummaryText: { ...base.aiSummaryText, fontStyle: 'italic', fontSize: 10, color: '#444444' },
-    section: { ...base.section, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-    sectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-    sectionDot: { display: 'none' },
-    sectionTitle: {
-      ...base.sectionTitle,
-      color: '#111111',
-      fontSize: 8.5,
-      letterSpacing: 1.5,
-    },
-    row: { ...base.row, borderBottomColor: '#f7f7f7', paddingVertical: 4 },
-    cellKey: { ...base.cellKey, color: '#cccccc' },
-    cellVal: { ...base.cellVal, color: '#333333', fontSize: 8 },
-    footer: { ...base.footer, borderTopColor: '#f5f5f5' },
-  });
+const buildMinimal = () => StyleSheet.create({
+  page: base.page,
+  coverPage: { padding: 80, justifyContent: 'center', alignItems: 'flex-start', textAlign: 'left' },
+  contentPage: { padding: '60px 80px 80px 80px' },
 
-// ─── MODERN (black background) ────────────────────────────────────────────────
-const buildModern = (primaryColor) =>
-  StyleSheet.create({
-    page: { ...base.page, backgroundColor: '#000000', padding: 0 },
-    // The gradient header band is painted by the PDF component using colored Views
-    gradientHeaderBand: { padding: '36px 50px 32px' },
-    headerBlock: { ...base.headerBlock, marginBottom: 0 },
-    gradientBar: { display: 'none' },
-    logo: { ...base.logo, marginBottom: 14 },
-    title: { ...base.title, fontSize: 24, color: '#ffffff' },
-    meta: { ...base.meta, color: 'rgba(255,255,255,0.5)' },
-    contentArea: { padding: '36px 50px' },
-    aiSummaryBlock: {
-      ...base.aiSummaryBlock,
-      backgroundColor: 'transparent',
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.1)',
-      borderRadius: 3,
-      marginBottom: 28,
-    },
-    aiSummaryEyebrow: { ...base.aiSummaryEyebrow, color: primaryColor },
-    aiSummaryText: { ...base.aiSummaryText, color: 'rgba(255,255,255,0.6)' },
-    section: { ...base.section, paddingLeft: 16, borderLeftWidth: 2, borderLeftColor: primaryColor },
-    sectionTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-    sectionDot: { display: 'none' },
-    sectionTitle: { ...base.sectionTitle, color: '#ffffff', fontSize: 9, letterSpacing: 1.5, marginBottom: 0 },
-    row: { ...base.row, borderBottomColor: 'rgba(255,255,255,0.07)', paddingVertical: 4.5 },
-    cellKey: { ...base.cellKey, color: 'rgba(255,255,255,0.3)' },
-    cellVal: { ...base.cellVal, color: '#ffffff', fontSize: 8 },
-    footer: {
-      ...base.footer,
-      color: 'rgba(255,255,255,0.18)',
-      borderTopColor: 'rgba(255,255,255,0.08)',
-    },
-    // The 4-segment gradient approximation bar used in the footer
-    gradientBarSegments: { flexDirection: 'row', height: 2, borderRadius: 1 },
-  });
+  logo: { height: 40, objectFit: 'contain', marginBottom: 60 },
+  eyebrow: { fontSize: 10, fontFamily: 'Helvetica-Bold', letterSpacing: 1.5, textTransform: 'uppercase', color: '#bbbbbb', marginBottom: 16 },
+  coverTitle: { fontSize: 36, fontFamily: 'Helvetica', letterSpacing: -0.5, lineHeight: 1.1, color: '#000000', marginBottom: 24 },
+  coverRule: { width: '100%', height: 1, backgroundColor: '#eeeeee', marginBottom: 24 },
+  coverCompany: { fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 1.2, textTransform: 'uppercase', color: '#000000' },
+  coverDate: { fontSize: 10, color: '#bbbbbb', marginTop: 'auto' },
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+  sectionTitle: { fontSize: 11, fontFamily: 'Helvetica-Bold', textTransform: 'uppercase', letterSpacing: 1, color: '#111111', borderBottomWidth: 1, borderBottomColor: '#eeeeee', paddingBottom: 10, marginBottom: 20 },
+  paragraph: { fontSize: 10, lineHeight: 1.6, color: '#666666', marginBottom: 12, textAlign: 'justify' },
+
+  dataBlock: { marginBottom: 32, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: '#f9f9f9' },
+  dataEntityTitle: { fontSize: 11, fontFamily: 'Helvetica-Bold', letterSpacing: 1, textTransform: 'uppercase', color: '#111111', marginBottom: 14 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
+  cellKey: { ...base.cellKey, color: '#999999' },
+  cellVal: { ...base.cellVal, color: '#333333' },
+
+  aiBox: { marginBottom: 20 },
+  aiText: { fontSize: 10, lineHeight: 1.6, color: '#444444', fontStyle: 'italic' },
+
+  footer: { position: 'absolute', bottom: 40, left: 80, right: 80, textAlign: 'center' },
+  footerText: { fontSize: 8, color: '#cccccc', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12 },
+});
+
+// ─── MODERN ───────────────────────────────────────────────────────────────────
+const buildModern = (primaryColor) => StyleSheet.create({
+  page: { ...base.page, backgroundColor: '#000000', color: '#ffffff' },
+  coverPage: { backgroundColor: '#050505', padding: 64, justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
+  contentPage: { padding: '64px 56px 80px 56px' },
+
+  logo: { height: 48, objectFit: 'contain', marginBottom: 40, backgroundColor: '#ffffff', borderRadius: 4 },
+  eyebrow: { fontSize: 10, fontFamily: 'Helvetica-Bold', letterSpacing: 2.5, textTransform: 'uppercase', color: '#777777', marginBottom: 20 },
+  coverTitle: { fontSize: 38, fontFamily: 'Helvetica-Bold', letterSpacing: -0.5, lineHeight: 1.1, color: '#ffffff', marginBottom: 40, textAlign: 'center' },
+  coverCompany: { fontSize: 12, fontFamily: 'Helvetica-Bold', letterSpacing: 1.5, textTransform: 'uppercase', color: '#cccccc', marginTop: 40 },
+  coverDate: { fontSize: 9, color: '#666666', marginTop: 'auto', letterSpacing: 1, textTransform: 'uppercase' },
+
+  sectionTitle: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: primaryColor, textTransform: 'uppercase', letterSpacing: 1, borderBottomWidth: 1, borderBottomColor: '#1a1a1a', paddingBottom: 10, marginBottom: 20 },
+  paragraph: { fontSize: 10, lineHeight: 1.6, color: '#999999', marginBottom: 12, textAlign: 'justify' },
+
+  dataBlock: { borderLeftWidth: 2, borderLeftColor: primaryColor, paddingLeft: 16, marginBottom: 24 },
+  dataEntityTitle: { fontSize: 11, fontFamily: 'Helvetica-Bold', letterSpacing: 1, textTransform: 'uppercase', color: '#ffffff', marginBottom: 12 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: '#0f0f0f' },
+  cellKey: { ...base.cellKey, color: '#666666' },
+  cellVal: { ...base.cellVal, color: '#ffffff' },
+
+  aiBox: { backgroundColor: '#050505', padding: '16px 20px', borderWidth: 1, borderColor: '#1a1a1a', borderRadius: 4, marginBottom: 20 },
+  aiText: { fontSize: 10, lineHeight: 1.6, color: '#cccccc' },
+
+  footer: { position: 'absolute', bottom: 40, left: 56, right: 56, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#1a1a1a', paddingTop: 16 },
+  footerText: { fontSize: 8, color: '#4d4d4d', textTransform: 'uppercase', letterSpacing: 1 },
+});
+
 export const getPdfStyles = (config) => {
   const { template, primaryColor } = config;
-  if (template === 'minimal') return buildMinimal(primaryColor);
-  if (template === 'modern')  return buildModern(primaryColor);
+  if (template === 'minimal') return buildMinimal();
+  if (template === 'modern') return buildModern(primaryColor);
   return buildStandard(primaryColor);
 };
-
-// Export brand colors so the PDF component can use them
-export { NAVY, CORAL, ORANGE, PINK };

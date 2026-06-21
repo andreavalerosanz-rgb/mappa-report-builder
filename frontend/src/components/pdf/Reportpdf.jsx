@@ -4,8 +4,7 @@ import { getPdfStyles, NAVY, CORAL, ORANGE, PINK } from './pdfstyles';
 const formatHeader = (str) =>
   str.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
-// ─── Gradient bar approximation ───────────────────────────────────────────────
-// react-pdf has no gradient support, so we tile 4 colored segments.
+// Barra de gradiente para el PDF
 const GradientBar = ({ style = {} }) => (
   <View style={{ flexDirection: 'row', height: 2, ...style }}>
     {[PINK, ORANGE, CORAL, NAVY].map((color, i) => (
@@ -14,192 +13,141 @@ const GradientBar = ({ style = {} }) => (
   </View>
 );
 
-// ─── Shared: AI Summary block ─────────────────────────────────────────────────
-const AiSummaryBlock = ({ styles, aiSummary }) => (
-  <View style={styles.aiSummaryBlock}>
-    <Text style={styles.aiSummaryEyebrow}>Resumen Ejecutivo · AI</Text>
-    <Text style={styles.aiSummaryText}>{aiSummary}</Text>
+// ─── Bloques de Contenido Reutilizables ────────────────────────────────────────
+const Methodology = ({ styles }) => (
+  <View style={{ marginBottom: 40 }}>
+    <Text style={styles.sectionTitle}>Methodological Approach</Text>
+    <Text style={styles.paragraph}>
+      This assessment has been carried out in accordance with internationally recognised standards: ISO 14067:2018 (Greenhouse gases – Carbon footprint of products) and the GHG Protocol. Life-cycle inventory data from reputable databases ensure robustness, comparability, and auditability of results.
+    </Text>
+    <Text style={styles.paragraph}>
+      The scope of the assessment follows a cradle-to-gate approach. It includes all relevant life-cycle stages: raw materials and packaging acquisition, upstream freight transportation, energy and consumables from manufacturing processes, and downstream waste transportation.
+    </Text>
   </View>
 );
 
-// ─── Shared: Data rows ────────────────────────────────────────────────────────
-const DataRows = ({ styles, row, headers, showSummary, showDetailedTable, index }) => (
-  <View style={styles.section}>
-    {showSummary && (
-      <View style={styles.sectionTitleRow}>
-        {styles.sectionDot?.display !== 'none' && (
-          <View style={styles.sectionDot} />
-        )}
-        <Text style={styles.sectionTitle}>
-          {row.product || row.entity || `Registro ${index + 1}`}
-        </Text>
-      </View>
-    )}
-    {showDetailedTable && (
-      <View>
-        {headers.map((h) => (
-          <View style={styles.row} key={h}>
-            <Text style={styles.cellKey}>{formatHeader(h)}</Text>
-            <Text style={styles.cellVal}>{row[h]}</Text>
-          </View>
-        ))}
-      </View>
-    )}
-  </View>
-);
-
-// ─── STANDARD template ────────────────────────────────────────────────────────
-const StandardPDF = ({ data, config, styles, headers }) => (
-  <Page size="A4" style={styles.page}>
-    {/* Header */}
-    <View style={styles.headerBlock}>
-      {config.logo && <Image src={config.logo} style={styles.logo} />}
-      <Text style={styles.title}>{config.title}</Text>
-      <Text style={styles.meta}>
-        {config.company}  ·  {new Date().toLocaleDateString('es-ES')}
-      </Text>
-      <GradientBar style={{ marginTop: 14 }} />
-    </View>
-
-    {config.aiSummary && <AiSummaryBlock styles={styles} aiSummary={config.aiSummary} />}
-
-    {data.map((row, i) => (
-      <DataRows
-        key={i}
-        styles={styles}
-        row={row}
-        headers={headers}
-        showSummary={config.showSummary}
-        showDetailedTable={config.showDetailedTable}
-        index={i}
-      />
-    ))}
-
-    <Text style={styles.footer} fixed>
-      Generado con Mappa Report Builder · {config.company}
-    </Text>
-  </Page>
-);
-
-// ─── MINIMAL template ─────────────────────────────────────────────────────────
-const MinimalPDF = ({ data, config, styles, headers }) => (
-  <Page size="A4" style={styles.page}>
-    <View style={styles.headerBlock}>
-      {config.logo && <Image src={config.logo} style={styles.logo} />}
-      <Text style={styles.title}>{config.title}</Text>
-      <Text style={styles.meta}>
-        {config.company}  ·  {new Date().toLocaleDateString('es-ES')}
-      </Text>
-    </View>
-
-    {config.aiSummary && <AiSummaryBlock styles={styles} aiSummary={config.aiSummary} />}
-
-    {data.map((row, i) => (
-      <DataRows
-        key={i}
-        styles={styles}
-        row={row}
-        headers={headers}
-        showSummary={config.showSummary}
-        showDetailedTable={config.showDetailedTable}
-        index={i}
-      />
-    ))}
-
-    <Text style={styles.footer} fixed>
-      Mappa Report Builder · {config.company}
-    </Text>
-  </Page>
-);
-
-// ─── MODERN template (black bg) ───────────────────────────────────────────────
-const ModernPDF = ({ data, config, styles, headers }) => (
-  <Page size="A4" style={styles.page}>
-
-    {/* Gradient header band — approximated with 4 colored strips side-by-side */}
-    <View style={{ flexDirection: 'row', height: 100 }}>
-      {[
-        { color: PINK, content: null },
-        { color: ORANGE, content: null },
-        { color: CORAL, content: null },
-        { color: NAVY, content: null },
-      ].map(({ color }, i) => (
-        <View key={i} style={{ flex: 1, backgroundColor: color }} />
-      ))}
-      {/* Overlay the text absolutely inside the band */}
-    </View>
-
-    {/* We overlay the header text on a semi-transparent black strip */}
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 100,
-        backgroundColor: 'rgba(0,0,0,0.45)',
-        padding: '24px 44px',
-        justifyContent: 'flex-end',
-      }}
-    >
-      {config.logo && (
-        <Image src={config.logo} style={{ ...styles.logo, marginBottom: 6 }} />
-      )}
-      <Text style={styles.title}>{config.title}</Text>
-      <Text style={styles.meta}>
-        {config.company}  ·  {new Date().toLocaleDateString('es-ES')}
-      </Text>
-    </View>
-
-    {/* Content area */}
-    <View style={styles.contentArea}>
-      {config.aiSummary && <AiSummaryBlock styles={styles} aiSummary={config.aiSummary} />}
-
+const EmissionsData = ({ data, config, headers, styles }) => (
+  <View style={{ marginBottom: 40 }}>
+    <Text style={styles.sectionTitle}>Emissions Inventory Data</Text>
+    <View style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {data.map((row, i) => (
-        <DataRows
-          key={i}
-          styles={styles}
-          row={row}
-          headers={headers}
-          showSummary={config.showSummary}
-          showDetailedTable={config.showDetailedTable}
-          index={i}
-        />
+        <View key={i} style={styles.dataBlock} wrap={false}>
+          {config.showSummary && (
+            <Text style={styles.dataEntityTitle}>
+              {row.product || row.entity || `Registro ${i + 1}`}
+            </Text>
+          )}
+          {config.showDetailedTable && (
+            <View>
+              {headers.map((h) => (
+                <View style={styles.row} key={h}>
+                  <Text style={styles.cellKey}>{formatHeader(h)}</Text>
+                  <Text style={styles.cellVal}>{row[h]}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
       ))}
     </View>
-
-    {/* Footer */}
-    <View
-      style={{
-        position: 'absolute',
-        bottom: 24,
-        left: 44,
-        right: 44,
-      }}
-    >
-      <GradientBar style={{ marginBottom: 8 }} />
-      <Text style={styles.footer}>
-        Mappa Report Builder · {config.company}
-      </Text>
-    </View>
-  </Page>
+  </View>
 );
 
-// ─── Main export ──────────────────────────────────────────────────────────────
+const Recommendations = ({ config, styles }) => {
+  if (!config.aiSummary) return null;
+  return (
+    <View style={{ marginBottom: 30 }} wrap={false}>
+      <Text style={styles.sectionTitle}>Strategic Recommendations</Text>
+      <View style={styles.aiBox}>
+        <Text style={styles.aiText}>{config.aiSummary}</Text>
+      </View>
+    </View>
+  );
+};
+
+// ─── Plantillas Principales (2 Páginas cada una) ──────────────────────────────
+const StandardPDF = ({ data, config, styles, headers, dateStr }) => (
+  <>
+    <Page size="A4" style={[styles.page, styles.coverPage]}>
+      {config.logo && <Image src={config.logo} style={styles.logo} />}
+      <Text style={styles.eyebrow}>Products Carbon Footprint Report</Text>
+      <Text style={styles.coverTitle}>{config.title}</Text>
+      <GradientBar style={{ width: 60, marginBottom: 32 }} />
+      <Text style={styles.coverCompany}>{config.company}</Text>
+      <Text style={styles.coverDate}>Generado el {dateStr}</Text>
+    </Page>
+    <Page size="A4" style={[styles.page, styles.contentPage]}>
+      <Methodology styles={styles} />
+      <EmissionsData data={data} config={config} headers={headers} styles={styles} />
+      <Recommendations config={config} styles={styles} />
+      <View style={styles.footer} fixed>
+        <GradientBar style={{ width: '100%' }} />
+        <Text style={styles.footerText}>Mappa Report Builder · {config.company}</Text>
+      </View>
+    </Page>
+  </>
+);
+
+const MinimalPDF = ({ data, config, styles, headers, dateStr }) => (
+  <>
+    <Page size="A4" style={[styles.page, styles.coverPage]}>
+      {config.logo && <Image src={config.logo} style={styles.logo} />}
+      <Text style={styles.eyebrow}>Products Carbon Footprint Report</Text>
+      <Text style={styles.coverTitle}>{config.title}</Text>
+      <View style={styles.coverRule} />
+      <Text style={styles.coverCompany}>{config.company}</Text>
+      <Text style={styles.coverDate}>{dateStr}</Text>
+    </Page>
+    <Page size="A4" style={[styles.page, styles.contentPage]}>
+      <Methodology styles={styles} />
+      <EmissionsData data={data} config={config} headers={headers} styles={styles} />
+      <Recommendations config={config} styles={styles} />
+      <View style={styles.footer} fixed>
+        <GradientBar style={{ width: '100%' }} />
+        <Text style={styles.footerText}>Mappa Report Builder · {config.company}</Text>
+      </View>
+    </Page>
+  </>
+);
+
+const ModernPDF = ({ data, config, styles, headers, dateStr }) => (
+  <>
+    <Page size="A4" style={[styles.page, styles.coverPage]}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><GradientBar style={{ height: 6 }} /></View>
+      {config.logo && <Image src={config.logo} style={styles.logo} />}
+      <Text style={styles.eyebrow}>Products Carbon Footprint</Text>
+      <Text style={styles.coverTitle}>{config.title}</Text>
+      <GradientBar style={{ width: 40, marginBottom: 40 }} />
+      <Text style={styles.coverCompany}>{config.company}</Text>
+      <Text style={styles.coverDate}>{dateStr}</Text>
+    </Page>
+    <Page size="A4" style={[styles.page, styles.contentPage]}>
+      <Methodology styles={styles} />
+      <EmissionsData data={data} config={config} headers={headers} styles={styles} />
+      <Recommendations config={config} styles={styles} />
+      <View style={styles.footer} fixed>
+        <Text style={styles.footerText}>Mappa Report Builder · {config.company}</Text>
+        <GradientBar style={{ width: 40 }} />
+      </View>
+    </Page>
+  </>
+);
+
+// ─── Exportador Principal ─────────────────────────────────────────────────────
 export const ReportPDF = ({ data, config }) => {
   if (!data || data.length === 0) return null;
 
   const styles = getPdfStyles(config);
-  const headers = Object.keys(data[0]).filter(
-    (h) => h !== 'product' && h !== 'entity'
-  );
-  const props = { data, config, styles, headers };
+  const headers = Object.keys(data[0]).filter(h => h !== 'product' && h !== 'entity');
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  
+  const props = { data, config, styles, headers, dateStr };
 
   return (
     <Document>
-      {config.template === 'modern'  && <ModernPDF {...props} />}
+      {config.template === 'modern' && <ModernPDF {...props} />}
       {config.template === 'minimal' && <MinimalPDF {...props} />}
-      {config.template !== 'modern' && config.template !== 'minimal' && <StandardPDF {...props} />}
+      {config.template === 'standard' && <StandardPDF {...props} />}
     </Document>
   );
 };
