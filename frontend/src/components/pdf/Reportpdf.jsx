@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { getPdfStyles, NAVY, CORAL, ORANGE, PINK } from './pdfstyles';
 
 const formatHeader = (str) =>
@@ -137,7 +137,10 @@ const ModernPDF = ({ data, config, styles, headers, dateStr }) => (
 export const ReportPDF = ({ data, config }) => {
   if (!data || data.length === 0) return null;
 
-  const styles = getPdfStyles(config);
+  // ESTA ES LA MAGIA: Convertimos el objeto en bruto de pdfstyles a un formato compatible con PDF
+  const rawStyles = getPdfStyles(config);
+  const styles = StyleSheet.create(rawStyles);
+
   const headers = Object.keys(data[0]).filter(h => h !== 'product' && h !== 'entity');
   const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
   
