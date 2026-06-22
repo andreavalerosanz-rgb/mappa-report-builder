@@ -3,7 +3,7 @@ import { useState } from 'react';
 // ─── Brand gradient as a reusable CSS value ───────────────────────────────────
 const MAPPA_GRADIENT = 'linear-gradient(90deg, #fdc2d8 0%, #fca65e 33%, #ff7983 66%, #041282 100%)';
 
-// Thin gradient rule used as a divider / accent bar
+// gradient used as a divider 
 const GradientRule = ({ className = '' }) => (
   <div
     className={`h-px w-full ${className}`}

@@ -3,7 +3,7 @@ import { getPdfStyles, NAVY, CORAL, ORANGE, PINK } from '../pdf/pdfstyles';
 const formatHeader = (str) =>
   str.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
-// Barra idéntica a la del PDF (colores sólidos apilados, sin degradado CSS)
+// Barra de colores para separar secciones Brand identity
 const GradientBar = ({ style = {} }) => (
   <div style={{ display: 'flex', flexDirection: 'row', height: 2, ...style }}>
     {[PINK, ORANGE, CORAL, NAVY].map((color, i) => (
@@ -11,6 +11,14 @@ const GradientBar = ({ style = {} }) => (
     ))}
   </div>
 );
+
+/*const GradientBar = ({ style = {} }) => (
+  <div style={{ 
+    height: 2, 
+    background: `linear-gradient(to right, ${PINK}, ${ORANGE}, ${CORAL}, ${NAVY})`,
+    ...style 
+  }} />
+);*/
 
 // Contenedor principal para la web
 const WebDocContainer = ({ children }) => (

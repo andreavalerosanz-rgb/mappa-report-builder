@@ -31,7 +31,7 @@ const EmissionsData = ({ data, config, headers, styles }) => (
     <Text style={styles.sectionTitle}>Emissions Inventory Data</Text>
     <View style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {data.map((row, i) => (
-        <View key={i} style={styles.dataBlock} wrap={false}>
+        <View key={i} style={[styles.dataBlock, { gap: 20 }]} wrap={true}>
           {config.showSummary && (
             <Text style={styles.dataEntityTitle}>
               {row.product || row.entity || `Registro ${i + 1}`}

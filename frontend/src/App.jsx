@@ -69,7 +69,7 @@ function App() {
       const response = await fetch('/api/upload', { method: 'POST', body: formData });
       const json = await response.json();
       
-      // SALVAGUARDA 1: Comprobar que el servidor devuelve datos válidos
+      // Comprobar que el servidor devuelve datos válidos
       if (Array.isArray(json)) {
         setReportData(json);
       } else {
@@ -92,7 +92,7 @@ function App() {
 const configWithoutLogo = { ...config };
 delete configWithoutLogo.logo;
 
-      // SALVAGUARDA 2: Recortar los datos a 5 registros para no saturar el servidor (Payload Too Large)
+      //Recortar los datos a 5 registros para no saturar el servidor 
       const dataSample = reportData.slice(0, 5);
 
       const response = await fetch('/api/copilot', {
@@ -107,7 +107,7 @@ delete configWithoutLogo.logo;
 
       const aiUpdates = await response.json();
       
-      // SALVAGUARDA 3: Evitar corrupción de estado si el backend devuelve un string de error
+      // Evitar corrupción de estado si el backend devuelve un string de error
       if (aiUpdates && typeof aiUpdates === 'object' && !Array.isArray(aiUpdates)) {
         setConfig(prev => ({ ...prev, ...aiUpdates }));
       } else {
