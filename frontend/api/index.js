@@ -37,8 +37,6 @@ app.post(['/api/copilot', '/copilot'], async (req, res) => {
   const { prompt, config, data } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Falta el prompt' });
 
-  // Build a compact data summary instead of sending all rows verbatim.
-  // This keeps the Ollama prompt small and avoids any secondary size issues.
   const headers = data?.length ? Object.keys(data[0]) : [];
   const sampleRows = (data || []).slice(0, 5); // first 5 rows as context
   const dataContext = JSON.stringify({ headers, sampleRows });
@@ -67,7 +65,7 @@ try {
         model: 'llama3',
         prompt: systemPrompt,
         stream: false,
-        format: 'json', // <--- ESTO ES LA MAGIA. Obliga a Llama3 a devolver JSON puro
+        format: 'json',
       }),
     });
 
@@ -76,12 +74,12 @@ try {
     const aiData = await aiResponse.json();
     const raw = aiData.response || '';
     
-    // Como le hemos forzado el formato, el parseo debería ser directo
+
     const parsed = JSON.parse(raw);
     return res.json(parsed);
 
   } catch (error) {
-    // ESTO TE DIRÁ EXACTAMENTE QUÉ FALLA EN TU TERMINAL
+
     console.error('⚠️ Error crítico con Ollama:', error.message);
     
     return res.json({
@@ -90,7 +88,7 @@ try {
   }
 });
 
-// ── Local dev server (Vercel ignores this block) ──────────────────────────────
+// ── Local dev server ──────────────────────────────
 if (process.env.NODE_ENV !== 'production') {
   app.listen(3001, () => {
     console.log('✅ API local corriendo en http://localhost:3001');
