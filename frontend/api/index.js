@@ -50,7 +50,7 @@ Allowed keys:
   - "template" ("standard" | "minimal" | "modern")
   - "title" (string)
   - "company" (string)
-  - "aiSummary" (string — a 1-2 sentence executive summary based on the data)
+  - "aiSummary" (string — a 4-5 sentence executive summary based on the data)
 Only include keys the user's instruction actually warrants changing.
 
 Current config: ${JSON.stringify(configWithoutLogo)}
