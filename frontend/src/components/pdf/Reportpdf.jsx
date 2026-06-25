@@ -137,7 +137,7 @@ const ModernPDF = ({ data, config, styles, headers, dateStr }) => (
 export const ReportPDF = ({ data, config }) => {
   if (!data || data.length === 0) return null;
 
-  // ESTA ES LA MAGIA: Convertimos el objeto en bruto de pdfstyles a un formato compatible con PDF
+  // Convertimos el objeto en bruto de pdfstyles a un formato compatible con PDF
   const rawStyles = getPdfStyles(config);
   const styles = StyleSheet.create(rawStyles);
 

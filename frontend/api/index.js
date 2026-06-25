@@ -16,7 +16,7 @@ app.use(cors());
 // but we still bump this limit as a safety net.
 app.use(express.json({ limit: '10mb' }));
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() }); //de esta manera el archivo se guarda en memoria y no en disco
 
 // ── Endpoint 1: CSV upload ────────────────────────────────────────────────────
 app.post(['/api/upload', '/upload'], upload.single('file'), (req, res) => {
@@ -25,7 +25,7 @@ app.post(['/api/upload', '/upload'], upload.single('file'), (req, res) => {
   const results = [];
   const stream = Readable.from(req.file.buffer);
 
-  stream
+  stream // este stream es un buffer que contiene el archivo CSV subido
     .pipe(csv())
     .on('data', (data) => results.push(data))
     .on('end', () => res.json(results))
@@ -39,7 +39,7 @@ app.post(['/api/copilot', '/copilot'], async (req, res) => {
 
   const headers = data?.length ? Object.keys(data[0]) : [];
   const sampleRows = (data || []).slice(0, 5); // first 5 rows as context
-  const dataContext = JSON.stringify({ headers, sampleRows });
+  const dataContext = JSON.stringify({ headers, sampleRows }); // Provide a concise context of the data to the AI
 
   // Strip logo from config — it's a base64 string and irrelevant for the AI
   const { logo: _logo, ...configWithoutLogo } = config || {};
